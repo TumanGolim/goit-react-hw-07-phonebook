@@ -8,9 +8,9 @@ const initialState = {
   filter: '',
 };
 
-const fetchContactsUrl = 'https://65a1919e42ecd7d7f0a6c414.mockapi.io/contacts';
-const addContactUrl = 'https://65a1919e42ecd7d7f0a6c414.mockapi.io/contacts';
-const deleteContactUrl = 'https://65a1919e42ecd7d7f0a6c414.mockapi.io/contacts';
+const fetchContactsUrl = 'https://connections-api.herokuapp.com';
+const addContactUrl = 'https://connections-api.herokuapp.com';
+const deleteContactUrl = 'https://connections-api.herokuapp.com';
 
 export const fetchContacts = createAsyncThunk('contacts/fetchAll', async () => {
   try {
