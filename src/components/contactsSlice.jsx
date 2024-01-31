@@ -8,24 +8,33 @@ const initialState = {
   filter: '',
 };
 
-const fetchContactsUrl = 'https://65a1919e42ecd7d7f0a6c414.mockapi.io/contacts';
-const addContactUrl = 'https://65a1919e42ecd7d7f0a6c414.mockapi.io/contacts';
-const deleteContactUrl = 'https://65a1919e42ecd7d7f0a6c414.mockapi.io/contacts';
+const fetchContactsUrl = 'https://connections-api.herokuapp.com/contacts';
+const addContactUrl = 'https://connections-api.herokuapp.com/contacts';
+const deleteContactUrl = 'https://connections-api.herokuapp.com/contacts';
 
-export const fetchContacts = createAsyncThunk('contacts/fetchAll', async () => {
-  try {
-    const response = await axios.get(fetchContactsUrl);
-    return response.data;
-  } catch (error) {
-    throw error;
+export const fetchContacts = createAsyncThunk(
+  'contacts/fetchAll',
+  async (_, thunkAPI) => {
+    try {
+      const token = getTokenFromState(thunkAPI.getState());
+      const response = await axios.get(fetchContactsUrl, {
+        headers: { Authorization: token },
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
   }
-});
+);
 
 export const addContact = createAsyncThunk(
   'contacts/addContact',
-  async newContact => {
+  async (newContact, thunkAPI) => {
     try {
-      const response = await axios.post(addContactUrl, newContact);
+      const token = getTokenFromState(thunkAPI.getState());
+      const response = await axios.post(addContactUrl, newContact, {
+        headers: { Authorization: token },
+      });
       return response.data;
     } catch (error) {
       throw error;
@@ -35,15 +44,25 @@ export const addContact = createAsyncThunk(
 
 export const deleteContact = createAsyncThunk(
   'contacts/deleteContact',
-  async contactId => {
+  async (contactId, thunkAPI) => {
     try {
-      await axios.delete(`${deleteContactUrl}/${contactId}`);
+      const token = getTokenFromState(thunkAPI.getState());
+      await axios.delete(`${deleteContactUrl}/${contactId}`, {
+        headers: { Authorization: token },
+      });
       return contactId;
     } catch (error) {
       throw error;
     }
   }
 );
+
+// Вспомогательная функция для получения токена из состояния
+const getTokenFromState = state => {
+  // Замените эту логику на ваш способ получения токена из состояния приложения
+  // Например, если у вас есть редуктор для авторизации, вы можете использовать state.auth.token
+  return 'ваш_токен';
+};
 
 const contactsSlice = createSlice({
   name: 'contacts',
