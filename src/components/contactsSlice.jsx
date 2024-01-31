@@ -1,8 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-const API_URL = 'https://connections-api.herokuapp.com/';
-
 const initialState = {
   items: [],
   isLoading: false,
@@ -10,33 +8,24 @@ const initialState = {
   filter: '',
 };
 
-export const fetchContacts = createAsyncThunk(
-  'contacts/fetchAll',
-  async (_, thunkAPI) => {
-    const { token } = thunkAPI.getState().auth;
-    try {
-      const response = await axios.get(`${API_URL}/contacts`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
+const fetchContactsUrl = 'https://65a1919e42ecd7d7f0a6c414.mockapi.io/contacts';
+const addContactUrl = 'https://65a1919e42ecd7d7f0a6c414.mockapi.io/contacts';
+const deleteContactUrl = 'https://65a1919e42ecd7d7f0a6c414.mockapi.io/contacts';
+
+export const fetchContacts = createAsyncThunk('contacts/fetchAll', async () => {
+  try {
+    const response = await axios.get(fetchContactsUrl);
+    return response.data;
+  } catch (error) {
+    throw error;
   }
-);
+});
 
 export const addContact = createAsyncThunk(
   'contacts/addContact',
-  async (newContact, thunkAPI) => {
-    const { token } = thunkAPI.getState().auth;
+  async newContact => {
     try {
-      const response = await axios.post(`${API_URL}/contacts`, newContact, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await axios.post(addContactUrl, newContact);
       return response.data;
     } catch (error) {
       throw error;
@@ -46,34 +35,10 @@ export const addContact = createAsyncThunk(
 
 export const deleteContact = createAsyncThunk(
   'contacts/deleteContact',
-  async (contactId, thunkAPI) => {
+  async contactId => {
     try {
-      await axios.delete(`${API_URL}/contacts/${contactId}`, {
-        headers: {
-          Authorization: `Bearer ${thunkAPI.getState().auth.token}`,
-        },
-      });
+      await axios.delete(`${deleteContactUrl}/${contactId}`);
       return contactId;
-    } catch (error) {
-      throw error;
-    }
-  }
-);
-
-export const updateContact = createAsyncThunk(
-  'contacts/updateContact',
-  async ({ contactId, updatedContact }, thunkAPI) => {
-    try {
-      const response = await axios.patch(
-        `${API_URL}/contacts/${contactId}`,
-        updatedContact,
-        {
-          headers: {
-            Authorization: `Bearer ${thunkAPI.getState().auth.token}`,
-          },
-        }
-      );
-      return response.data;
     } catch (error) {
       throw error;
     }
@@ -128,21 +93,6 @@ const contactsSlice = createSlice({
         state.error = null;
       })
       .addCase(deleteContact.rejected, (state, action) => {
-        state.isLoading = false;
-        state.error = action.error.message;
-      })
-      .addCase(updateContact.pending, state => {
-        state.isLoading = true;
-        state.error = null;
-      })
-      .addCase(updateContact.fulfilled, (state, action) => {
-        state.items = state.items.map(contact =>
-          contact.id === action.payload.id ? action.payload : contact
-        );
-        state.isLoading = false;
-        state.error = null;
-      })
-      .addCase(updateContact.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.error.message;
       });
